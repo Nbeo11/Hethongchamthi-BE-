@@ -11,6 +11,7 @@ Router.route('/')
 
 Router.route('/:id')
     .get(gradeController.getDetails)
-    .put()
+    //.put(gradeValidation.update, gradeController.update)
+    //.delete(gradeValidation.deleteItem, gradeController.deleteItem)
 
 export const gradeRoute = Router

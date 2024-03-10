@@ -10,9 +10,9 @@ const createNew = async (req, res, next) => {
 }
 
 
-const getAllOlogies = async (req, res, next) => {
+const getAllByCourseId = async (req, res, next) => {
     try {
-        const allOlogies = await ologyService.getAllOlogies();
+        const allOlogies = await ologyService.getAllByCourseId();
         res.status(StatusCodes.OK).json(allOlogies);
     } catch (error) {
         next(error);
@@ -27,8 +27,33 @@ const getDetails = async (req, res, next) => {
     } catch (error) { next(error) }
 }
 
+const update = async (req, res, next) => {
+    try {
+        const ologyId = req.params.id;
+        const updatedOlogy = await ologyService.update(ologyId, req.body);
+
+        res.status(StatusCodes.OK).json(updatedOlogy);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteItem = async (req, res, next) => {
+    try {
+        const ologyId = req.params.id
+        const result = await ologyService.deleteItem(ologyId)
+
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
 export const ologyController = {
     createNew,
     getDetails,
-    getAllOlogies
+    getAllByCourseId,
+    update,
+    deleteItem
 }

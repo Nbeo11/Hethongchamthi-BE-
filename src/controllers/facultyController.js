@@ -1,26 +1,26 @@
 /* eslint-disable indent */
 import { StatusCodes } from 'http-status-codes'
-import { courseService } from '~/services/courseService'
+import { facultyService } from '~/services/facultyService'
 
 const createNew = async (req, res, next) => {
     try {
         // console.log(req.body)
 
         //Điều hướng dữ liệu sang tầng Service
-        const createdCourse = await courseService.createNew(req.body)
+        const createdFaculty = await facultyService.createNew(req.body)
 
         //Có kết quả thì trả về phía Client
-        res.status(StatusCodes.CREATED).json(createdCourse)
+        res.status(StatusCodes.CREATED).json(createdFaculty)
     } catch (error) { next(error) }
 }
 
-const getAllCourses = async (req, res, next) => {
+const getAllFaculties = async (req, res, next) => {
     try {
         // Gọi phương thức từ service để lấy tất cả các khóa học
-        const allCourses = await courseService.getAllCourses();
+        const allFaculties = await facultyService.getAllFaculties();
 
         // Trả về kết quả
-        res.status(StatusCodes.OK).json(allCourses);
+        res.status(StatusCodes.OK).json(allFaculties);
     } catch (error) {
         // Xử lý lỗi nếu có
         next(error);
@@ -31,21 +31,21 @@ const getAllCourses = async (req, res, next) => {
 const getDetails = async (req, res, next) => {
     try {
         // console.log(req.params)
-        const courseId = req.params.id
+        const facultyId = req.params.id
 
-        const course = await courseService.getDetails(courseId)
+        const faculty = await facultyService.getDetails(facultyId)
 
-        res.status(StatusCodes.OK).json(course)
+        res.status(StatusCodes.OK).json(faculty)
     } catch (error) { next(error) }
 }
 
 
 const update = async (req, res, next) => {
     try {
-        const courseId = req.params.id;
-        const updatedCourse = await courseService.update(courseId, req.body);
+        const facultyId = req.params.id;
+        const updatedFaculty = await facultyService.update(facultyId, req.body);
 
-        res.status(StatusCodes.OK).json(updatedCourse);
+        res.status(StatusCodes.OK).json(updatedFaculty);
     } catch (error) {
         next(error);
     }
@@ -53,8 +53,8 @@ const update = async (req, res, next) => {
 
 const deleteItem = async (req, res, next) => {
     try {
-        const courseId = req.params.id
-        const result = await courseService.deleteItem(courseId);
+        const facultyId = req.params.id
+        const result = await facultyService.deleteItem(facultyId);
 
         res.status(StatusCodes.OK).json(result);
     } catch (error) {
@@ -62,10 +62,10 @@ const deleteItem = async (req, res, next) => {
     }
 }
 
-export const courseController = {
+export const facultyController = {
     createNew,
     getDetails,
-    getAllCourses,
+    getAllFaculties,
     update,
     deleteItem
 }

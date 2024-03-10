@@ -7,52 +7,52 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { studentModel } from './studentModel'
 
 //Define Collection (Name & Schema)
-const GRADE_COLLECTION_NAME = 'grades'
-const GRADE_COLLECTION_SCHEMA = Joi.object({
-    courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    ologyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+const TEACHER_COLLECTION_NAME = 'teachers'
+const TEACHER_COLLECTION_SCHEMA = Joi.object({
+    facultyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    departmentId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     studentOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
-    gradename: Joi.string().required().min(3).max(50).trim().strict(),
+    teachername: Joi.string().required().min(3).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
 })
 
 const validateBeforeCreate = async (data) => {
-    return await GRADE_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
+    return await TEACHER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
 const createNew = async (data) => {
     try {
         const validData = await validateBeforeCreate(data)
         //Biến đổi một số dữ liệu liên quan tới OjectId chuẩn chỉnh
-        const newGradeToAdd = {
+        const newTeacherToAdd = {
             ...validData,
-            courseId: new ObjectId(validData.courseId),
-            ologyId: new ObjectId(validData.ologyId)
+            facultyId: new ObjectId(validData.facultyId),
+            departmentId: new ObjectId(validData.departmentId)
         }
-        const createdGrade = await GET_DB().collection(GRADE_COLLECTION_NAME).insertOne(newGradeToAdd)
-        return createdGrade
+        const createdTeacher = await GET_DB().collection(TEACHER_COLLECTION_NAME).insertOne(newTeacherToAdd)
+        return createdTeacher
     } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (gradeId) => {
+const findOneById = async (teacherId) => {
     try {
-        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).findOne({
-            _id: new ObjectId(gradeId)
+        const result = await GET_DB().collection(TEACHER_COLLECTION_NAME).findOne({
+            _id: new ObjectId(teacherId)
         })
         return result
     } catch (error) { throw new Error(error) }
 }
 
-const getAllGrades = async () => {
+const getAllTeachers = async () => {
     try {
         // Gọi phương thức từ MongoDB để lấy tất cả các khóa học
-        const allGrades = await GET_DB().collection(GRADE_COLLECTION_NAME).find().toArray();
+        const allTeachers = await GET_DB().collection(TEACHER_COLLECTION_NAME).find().toArray();
         // Trả về kết quả
-        return allGrades;
+        return allTeachers;
     } catch (error) {
         // Xử lý lỗi nếu có
         throw error;
@@ -61,7 +61,7 @@ const getAllGrades = async () => {
 
 const getDetails = async (id) => {
     try {
-        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).aggregate([
+        const result = await GET_DB().collection(TEACHER_COLLECTION_NAME).aggregate([
             {
                 $match: {
                     _id: new ObjectId(id),
@@ -72,7 +72,7 @@ const getDetails = async (id) => {
                 $lookup: {
                     from: studentModel.STUDENT_COLLECTION_NAME,
                     localField: '_id',
-                    foreignField: 'gradeId',
+                    foreignField: 'teacherId',
                     as: 'students'
                 }
             }
@@ -81,23 +81,23 @@ const getDetails = async (id) => {
     } catch (error) { throw new Error(error) }
 }
 
-const deleteManyByGradeId = async (ologyId) => {
+const deleteManyByTeacherId = async (departmentId) => {
     try {
-        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).deleteMany({
-            ologyId: new ObjectId(ologyId)
+        const result = await GET_DB().collection(TEACHER_COLLECTION_NAME).deleteMany({
+            departmentId: new ObjectId(departmentId)
         })
-        console.log('deleteManyByGradeId - grade', result)
+        console.log('deleteManyByTeacherId - teacher', result)
         return result
     } catch (error) { throw new Error(error) }
 }
 
 
-export const gradeModel = {
-    GRADE_COLLECTION_NAME,
-    GRADE_COLLECTION_SCHEMA,
+export const teacherModel = {
+    TEACHER_COLLECTION_NAME,
+    TEACHER_COLLECTION_SCHEMA,
     createNew,
     findOneById,
     getDetails,
-    getAllGrades,
-    deleteManyByGradeId
+    getAllTeachers,
+    deleteManyByTeacherId
 }

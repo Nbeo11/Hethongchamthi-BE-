@@ -7,12 +7,14 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
     const correctCondition = Joi.object({
-        courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-        ologyname: Joi.string().required().min(3).max(50).trim().strict()
+        facultyname: Joi.string().required().min(3).max(50).trim().strict()
     })
 
     try {
+        //abortEarly: dùng để check xem validate có dừng sớm k hay là xét hết các trường
         await correctCondition.validateAsync(req.body, { abortEarly: false })
+        
+        //Validate dữ liệu xong xuôi hợp lệ thì cho request đi tiếp sang Controller
         next()
     } catch (error) {
         next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
@@ -20,12 +22,16 @@ const createNew = async (req, res, next) => {
 
 }
 
+
 const update = async (req, res, next) => {
+    //Lưu ý không dùng hàm require trong trường hợp update
     const correctCondition = Joi.object({
-        ologyname: Joi.string().min(3).max(50).trim().strict()
+        facultyname: Joi.string().min(3).max(50).trim().strict()
     })
 
     try {
+        //abortEarly: dùng để check xem validate có dừng sớm k hay là xét hết các trường
+        // Đối với trường hợp uo
         await correctCondition.validateAsync(req.body, {
             abortEarly: false,
             allowUnknown: true
@@ -52,7 +58,7 @@ const deleteItem = async (req, res, next) => {
 
 }
 
-export const ologyValidation = {
+export const facultyValidation = {
     createNew,
     update,
     deleteItem

@@ -8,10 +8,10 @@ import { gradeModel } from './gradeModel'
 import { studentModel } from './studentModel'
 
 //Define Collection (Name & Schema)
-const OLOGY_COLLECTION_NAME = 'ologies'
-const OLOGY_COLLECTION_SCHEMA = Joi.object({
-    courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    ologyname: Joi.string().required().min(3).max(50).trim().strict(),
+const DEPARTMENT_COLLECTION_NAME = 'departments'
+const DEPARTMENT_COLLECTION_SCHEMA = Joi.object({
+    facultyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    departmentname: Joi.string().required().min(3).max(50).trim().strict(),
     gradeOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
@@ -20,39 +20,39 @@ const OLOGY_COLLECTION_SCHEMA = Joi.object({
     _destroy: Joi.boolean().default(false)
 })
 
-const INVALID_UPDATE_FIELDS = ['_id', 'courseId', 'createdAt']
+const INVALID_UPDATE_FIELDS = ['_id', 'facultyId', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
-    return await OLOGY_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
+    return await DEPARTMENT_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
 const createNew = async (data) => {
     try {
         const validData = await validateBeforeCreate(data)
-        const newOlogyToAdd = {
+        const newDepartmentToAdd = {
             ...validData,
-            courseId: new ObjectId(validData.courseId)
+            facultyId: new ObjectId(validData.facultyId)
         }
-        const createdOlogy = await GET_DB().collection(OLOGY_COLLECTION_NAME).insertOne(newOlogyToAdd)
-        return createdOlogy
-        // return await GET_DB().collection(OLOGY_COLLECTION_NAME).insertOne(validData)
+        const createdDepartment = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).insertOne(newDepartmentToAdd)
+        return createdDepartment
+        // return await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).insertOne(validData)
     } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (ologyId) => {
+const findOneById = async (departmentId) => {
     try {
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).findOne({
-            _id: new ObjectId(ologyId)
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).findOne({
+            _id: new ObjectId(departmentId)
         })
         return result
     } catch (error) { throw new Error(error) }
 }
 
-const getAllByCourseId = async (courseId) => {
+const getAllByFacultyId = async (facultyId) => {
     try {
-        // Lấy tất cả các ology thuộc course
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).find({
-            courseId: new ObjectId(courseId)
+        // Lấy tất cả các department thuộc faculty
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).find({
+            facultyId: new ObjectId(facultyId)
         }).toArray();
         return result;
     } catch (error) {
@@ -62,7 +62,7 @@ const getAllByCourseId = async (courseId) => {
 
 const getDetails = async (id) => {
     try {
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).aggregate([
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).aggregate([
             {
                 $match: {
                     _id: new ObjectId(id),
@@ -73,7 +73,7 @@ const getDetails = async (id) => {
                 $lookup: {
                     from: gradeModel.GRADE_COLLECTION_NAME,
                     localField: '_id',
-                    foreignField: 'ologyId',
+                    foreignField: 'departmentId',
                     as: 'grades'
                 }
             },
@@ -81,7 +81,7 @@ const getDetails = async (id) => {
                 $lookup: {
                     from: studentModel.STUDENT_COLLECTION_NAME,
                     localField: '_id',
-                    foreignField: 'ologyId',
+                    foreignField: 'departmentId',
                     as: 'students'
                 }
             }
@@ -92,8 +92,8 @@ const getDetails = async (id) => {
 
 const pushGradeOrderIds = async (grade) => {
     try {
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).findOneAndUpdate(
-        { _id: new ObjectId(grade.ologyId) },
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).findOneAndUpdate(
+        { _id: new ObjectId(grade.departmentId) },
         { $push: { gradeOrderIds: new ObjectId(grade._id) } },
         { returnDocument: 'after' }
         )
@@ -102,15 +102,15 @@ const pushGradeOrderIds = async (grade) => {
     } catch (error) { throw new Error(error) }
 }
 
-const update = async (ologyId, updateData) => {
+const update = async (departmentId, updateData) => {
     try {
         Object.keys(updateData).forEach(fileName => {
             if (INVALID_UPDATE_FIELDS.includes(fileName)) {
                 delete updateData[fileName]
             }
         })
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).findOneAndUpdate(
-            { _id: new ObjectId(ologyId) },
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).findOneAndUpdate(
+            { _id: new ObjectId(departmentId) },
             { $set: updateData},
             { returnDocument: 'after' }
         );
@@ -121,36 +121,36 @@ const update = async (ologyId, updateData) => {
     }
 }
 
-const deleteOneById = async (ologyId) => {
+const deleteOneById = async (departmentId) => {
     try {
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).deleteOne({
-            _id: new ObjectId(ologyId)
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).deleteOne({
+            _id: new ObjectId(departmentId)
         })
-        console.log('deleteOneById - ology', result)
+        console.log('deleteOneById - department', result)
         return result
     } catch (error) { throw new Error(error) }
 }
 
-const deleteManyByOlogyId = async (courseId) => {
+const deleteManyByDepartmentId = async (facultyId) => {
     try {
-        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).deleteMany({
-            courseId: new ObjectId(courseId)
+        const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).deleteMany({
+            facultyId: new ObjectId(facultyId)
         })
-        console.log('deleteManyByOlogyId - ology', result)
+        console.log('deleteManyByDepartmentId - department', result)
         return result
     } catch (error) { throw new Error(error) }
 }
 
 
-export const ologyModel = {
-    OLOGY_COLLECTION_NAME,
-    OLOGY_COLLECTION_SCHEMA,
+export const departmentModel = {
+    DEPARTMENT_COLLECTION_NAME,
+    DEPARTMENT_COLLECTION_SCHEMA,
     createNew,
     findOneById,
     getDetails,
-    getAllByCourseId,
+    getAllByFacultyId,
     pushGradeOrderIds,
     update,
     deleteOneById,
-    deleteManyByOlogyId
+    deleteManyByDepartmentId
 }
