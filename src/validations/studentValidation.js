@@ -9,13 +9,13 @@ const createNew = async (req, res, next) => {
         courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
         ologyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
         gradeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-        studentname: Joi.string().required().min(3).max(50).trim().strict(),
+        username: Joi.string().required().min(3).max(50).trim().strict(),
+        email: Joi.string().email().required(),
         password: Joi.string().required().min(3).max(50).trim().strict(),
         birth: Joi.date().iso(),
         gender: Joi.string().valid('male', 'female', 'other'),
         phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
-        email: Joi.string().email().required(),
-        role: Joi.string().required().valid('role1', 'role2', 'role3', 'role4', 'role5') // Thêm các vai trò mới vào đây
+        note: Joi.string().min(3).max(50).trim().strict()
     })
 
     try {
@@ -29,13 +29,11 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     const correctCondition = Joi.object({
-        //studentname: Joi.string().min(3).max(50).trim().strict(),
+        gradeId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+        username: Joi.string().min(3).max(50).trim().strict(),
         birth: Joi.date().iso(),
         gender: Joi.string().valid('male', 'female', 'other'),
         phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
-        email: Joi.string().email(),
-        role: Joi.string().valid('admin', 'student'),
-        //gradeId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     })
 
     try {

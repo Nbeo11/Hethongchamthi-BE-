@@ -1,18 +1,18 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Bộ môn
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { gradeModel } from './gradeModel'
-import { studentModel } from './studentModel'
+import { teacherModel } from './teacherModel'
 
 //Define Collection (Name & Schema)
 const DEPARTMENT_COLLECTION_NAME = 'departments'
 const DEPARTMENT_COLLECTION_SCHEMA = Joi.object({
     facultyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     departmentname: Joi.string().required().min(3).max(50).trim().strict(),
-    gradeOrderIds: Joi.array().items(
+    teacherOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -71,18 +71,10 @@ const getDetails = async (id) => {
             },
             {
                 $lookup: {
-                    from: gradeModel.GRADE_COLLECTION_NAME,
+                    from: teacherModel.TEACHER_COLLECTION_NAME,
                     localField: '_id',
                     foreignField: 'departmentId',
-                    as: 'grades'
-                }
-            },
-            {
-                $lookup: {
-                    from: studentModel.STUDENT_COLLECTION_NAME,
-                    localField: '_id',
-                    foreignField: 'departmentId',
-                    as: 'students'
+                    as: 'teachers'
                 }
             }
         ]).toArray()
@@ -90,11 +82,11 @@ const getDetails = async (id) => {
     } catch (error) { throw new Error(error) }
 }
 
-const pushGradeOrderIds = async (grade) => {
+const pushTeacherOrderIds = async (teacher) => {
     try {
         const result = await GET_DB().collection(DEPARTMENT_COLLECTION_NAME).findOneAndUpdate(
-        { _id: new ObjectId(grade.departmentId) },
-        { $push: { gradeOrderIds: new ObjectId(grade._id) } },
+        { _id: new ObjectId(teacher.departmentId) },
+        { $push: { teacherOrderIds: new ObjectId(teacher._id) } },
         { returnDocument: 'after' }
         )
 
@@ -149,7 +141,7 @@ export const departmentModel = {
     findOneById,
     getDetails,
     getAllByFacultyId,
-    pushGradeOrderIds,
+    pushTeacherOrderIds,
     update,
     deleteOneById,
     deleteManyByDepartmentId

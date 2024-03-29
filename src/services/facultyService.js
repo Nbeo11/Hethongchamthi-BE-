@@ -3,9 +3,9 @@
 // eslint-disable-next-line quotes
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
+import { departmentModel } from '~/models/departmentModel'
 import { facultyModel } from '~/models/facultyModel'
-import { gradeModel } from '~/models/gradeModel'
-import { ologyModel } from '~/models/ologyModel'
+import { teacherModel } from '~/models/teacherModel'
 import ApiError from '~/utils/ApiError'
 
 const createNew = async (reqBody) => {
@@ -57,25 +57,18 @@ const getDetails = async (facultyId) => {
         //B1: deepclone faculty là tạo ra một cái mới để xử lý, không ảnh hưởng tớ faculty ban đầu
         const resFaculty = cloneDeep(faculty)
 
-        //B2: Đưa grade về đúng ology
-        resFaculty.ologies.forEach(ology => {
+        //B2: Đưa teacher về đúng department
+        resFaculty.departments.forEach(department => {
             //Cách dùng .equals này là bởi vì ObjectId trong MongoDB có suppport method .equals
-            ology.grades = resFaculty.grades.filter(grade => grade.ologyId.equals(ology._id))
+            department.teachers = resFaculty.teachers.filter(teacher => teacher.departmentId.equals(department._id))
             
             //Cách này là convert ObjectId về string bằng hàm toString() của Javascript
-            // ology.grades = resFaculty.grades.filter(grade => grade.ologyId.toString() === ology._id.toString())
-        })
-        resFaculty.grades.forEach(grade => {
-            //Cách dùng .equals này là bởi vì ObjectId trong MongoDB có suppport method .equals
-            grade.students = resFaculty.students.filter(student => student.gradeId.equals(grade._id))
-            
-            //Cách này là convert ObjectId về string bằng hàm toString() của Javascript
-            // ology.grades = resFaculty.grades.filter(grade => grade.ologyId.toString() === ology._id.toString())
+            // department.teachers = resFaculty.teachers.filter(teacher => teacher.departmentId.toString() === department._id.toString())
         })
 
-        //B3: Xóa mảng grades khỏi faculty ban đầu
-        delete resFaculty.grades
-        delete resFaculty.students
+        //B3: Xóa mảng teachers khỏi faculty ban đầu
+        delete resFaculty.teachers
+        
 
 
         return resFaculty
@@ -102,17 +95,17 @@ const deleteItem = async (facultyId) => {
         // Xóa faculty
         await facultyModel.deleteOneById(facultyId);
 
-        // Xóa toàn bộ ology và grade thuộc faculty
-        const ologies = await ologyModel.getAllByFacultyId(facultyId);
-        for (const ology of ologies) {
-            // Lấy ologyId từ đối tượng ology, không sử dụng ology._id nếu không phải là ologyId
-            const ologyId = ology._id;
-            // Xóa toàn bộ grade thuộc ology
-            await gradeModel.deleteManyByGradeId(ologyId);
+        // Xóa toàn bộ department và teacher thuộc faculty
+        const departments = await departmentModel.getAllByFacultyId(facultyId);
+        for (const department of departments) {
+            // Lấy departmentId từ đối tượng department, không sử dụng department._id nếu không phải là departmentId
+            const departmentId = department._id;
+            // Xóa toàn bộ teacher thuộc department
+            await teacherModel.deleteManyByTeacherId(departmentId);
         }
 
-        // Sau khi xóa tất cả các grade, bạn có thể xóa tất cả các ology thuộc faculty
-        await ologyModel.deleteManyByOlogyId(facultyId);
+        // Sau khi xóa tất cả các teacher, bạn có thể xóa tất cả các department thuộc faculty
+        await departmentModel.deleteManyByDepartmentId(facultyId);
 
         return { deleteResult: 'The faculty and its references have been deleted!' };
     } catch (error) {

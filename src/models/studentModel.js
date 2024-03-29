@@ -1,9 +1,12 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Sinh viên (user)
+import bcrypt from 'bcrypt'
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { userModel } from './userModel'
 
 //Define Collection (Name & Schema)
 const STUDENT_COLLECTION_NAME = 'students'
@@ -11,35 +14,63 @@ const STUDENT_COLLECTION_SCHEMA = Joi.object({
     courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     ologyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     gradeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    studentname: Joi.string().required().min(3).max(50).trim().strict(),
+    username: Joi.string().required().min(3).max(50).trim().strict(),
+    email: Joi.string().email().required(),
     password: Joi.string().required().min(3).max(50).trim().strict(),
     birth: Joi.date().iso(),
     gender: Joi.string().valid('male', 'female', 'other'),
     phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
-    email: Joi.string().email().required(),
-    role: Joi.string().required().valid('role1', 'role2', 'role3', 'role4', 'role5'), // Thêm các vai trò mới vào đây
+    role: Joi.string().default('sinhvien'), // Đặt giá trị mặc định là "sinhvien"
+    note: Joi.string().min(3).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
 })
-
+const INVALID_UPDATE_FIELDS = ['_id', 'courseId', 'ologyId', 'createdAt', 'email']
 const validateBeforeCreate = async (data) => {
     return await STUDENT_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
+}
+const hashPassword = async (password) => {
+    const saltRounds = 10; // Số vòng lặp sử dụng cho thuật toán băm
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
 }
 
 const createNew = async (data) => {
     try {
-        const validData = await validateBeforeCreate(data)
-        //Biến đổi một số dữ liệu liên quan tới OjectId chuẩn chỉnh
+
+        const existingUser = await GET_DB().collection(userModel.USER_COLLECTION_NAME).findOne({ email: data.email });
+        if (existingUser) {
+            throw new Error('Email already exists');
+        }
+
+        const validData = await validateBeforeCreate(data);
+
+        // Băm mật khẩu trước khi lưu vào cơ sở dữ liệu
+        const hashedPassword = await hashPassword(data.password);
+
+        // Biến đổi một số dữ liệu liên quan tới OjectId chuẩn chỉnh
         const newStudentToAdd = {
             ...validData,
             courseId: new ObjectId(validData.courseId),
             ologyId: new ObjectId(validData.ologyId),
             gradeId: new ObjectId(validData.gradeId),
+            password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
         }
-        const createdStudent = await GET_DB().collection(STUDENT_COLLECTION_NAME).insertOne(newStudentToAdd)
-        return createdStudent
-    } catch (error) { throw new Error(error) }
+
+        const createdStudent = await GET_DB().collection(STUDENT_COLLECTION_NAME).insertOne(newStudentToAdd);
+
+        await userModel.createUsersCollection({
+            _id: createdStudent._id,
+            email: data.email,
+            password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
+            role: 'sinhvien' // Xác định loại người dùng là sinh viên
+            // Thêm các trường khác của sinh viên nếu cần
+        });
+        return createdStudent;
+    } catch (error) {
+        throw new Error(error);
+    }
 }
 
 const findOneById = async (studentId) => {
@@ -83,6 +114,36 @@ const deleteManyByStudentId = async (gradeId) => {
 }
 
 
+const update = async (studentId, updateData) => {
+    try {
+        Object.keys(updateData).forEach(fileName => {
+            if (INVALID_UPDATE_FIELDS.includes(fileName)) {
+                delete updateData[fileName]
+            }
+        })
+        const result = await GET_DB().collection(STUDENT_COLLECTION_NAME).findOneAndUpdate(
+            { _id: new ObjectId(studentId) },
+            { $set: updateData},
+            { returnDocument: 'after' }
+        );
+
+        return result
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const deleteOneById = async (studentId) => {
+    try {
+        const result = await GET_DB().collection(STUDENT_COLLECTION_NAME).deleteOne({
+            _id: new ObjectId(studentId)
+        })
+        console.log('deleteOneById - student', result)
+        return result
+    } catch (error) { throw new Error(error) }
+}
+
+
 export const studentModel = {
     STUDENT_COLLECTION_NAME,
     STUDENT_COLLECTION_SCHEMA,
@@ -90,5 +151,7 @@ export const studentModel = {
     findOneById,
     getDetails,
     getAllStudents,
-    deleteManyByStudentId
+    deleteManyByStudentId,
+    update,
+    deleteOneById
 }

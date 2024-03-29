@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable indent */
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'

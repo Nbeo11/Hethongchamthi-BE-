@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Lớp học
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
@@ -14,7 +15,9 @@ const GRADE_COLLECTION_SCHEMA = Joi.object({
     studentOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
+    gradecode: Joi.string().required().min(3).max(50).trim().strict(),
     gradename: Joi.string().required().min(3).max(50).trim().strict(),
+    gradedescription: Joi.string().required().min(3).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)

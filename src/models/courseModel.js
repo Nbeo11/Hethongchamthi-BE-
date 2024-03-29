@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Khóa học
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'

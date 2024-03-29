@@ -27,8 +27,32 @@ const getDetails = async (req, res, next) => {
     } catch (error) { next(error) }
 }
 
+const update = async (req, res, next) => {
+    try {
+        const teacherId = req.params.id;
+        const updatedTeacher = await teacherService.update(teacherId, req.body);
+
+        res.status(StatusCodes.OK).json(updatedTeacher);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteItem = async (req, res, next) => {
+    try {
+        const teacherId = req.params.id
+        const result = await teacherService.deleteItem(teacherId)
+
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const teacherController = {
     createNew,
     getDetails,
-    getAllTeachers
+    getAllTeachers,
+    update,
+    deleteItem
 }

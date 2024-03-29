@@ -3,7 +3,6 @@
 // eslint-disable-next-line quotes
 import { StatusCodes } from 'http-status-codes'
 import { departmentModel } from '~/models/departmentModel'
-import { studentModel } from '~/models/studentModel'
 import { teacherModel } from '~/models/teacherModel'
 import ApiError from '~/utils/ApiError'
 
@@ -67,9 +66,7 @@ const deleteItem = async (teacherId) => {
         }
         // Xóa teacher
         await teacherModel.deleteOneById(teacherId)
-        // Xóa toàn bộ student thuộc teacher
-
-        await studentModel.deleteManyByTeacherId(teacherId)
+    
 
         // Xóa teacherId trong mảng teacherOrderIds trong Faculty chứa nó
 

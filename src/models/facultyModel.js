@@ -1,11 +1,11 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Khoa
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { departmentModel } from './departmentModel'
-import { studentModel } from './studentModel'
 import { teacherModel } from './teacherModel'
 
 //Define Collection (Name & Schema)
@@ -83,14 +83,6 @@ const getDetails = async (id) => {
                     localField: '_id',
                     foreignField: 'facultyId',
                     as: 'teachers'
-                }
-            },
-            {
-                $lookup: {
-                    from: studentModel.STUDENT_COLLECTION_NAME,
-                    localField: '_id',
-                    foreignField: 'facultyId',
-                    as: 'students'
                 }
             }
         ]).toArray()

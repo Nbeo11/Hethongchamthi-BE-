@@ -1,6 +1,8 @@
 /* eslint-disable indent */
-import { StatusCodes } from 'http-status-codes'
-import { studentService } from '~/services/studentService'
+import { StatusCodes } from 'http-status-codes';
+import { studentService } from '~/services/studentService';
+import { studentModel } from '../models/studentModel';
+import { parseExcelFile } from '../utils/excelParser';
 
 const createNew = async (req, res, next) => {
     try {
@@ -49,11 +51,30 @@ const deleteItem = async (req, res, next) => {
     }
 }
 
+const addStudentsFromExcel = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        // Xử lý file Excel để lấy dữ liệu sinh viên
+        const studentsData = await parseExcelFile(req.file.path);
+
+        // Thêm sinh viên từ dữ liệu đã được trích xuất
+        const addedStudents = await studentModel.createNew(studentsData);
+
+        // Trả về kết quả cho client
+        return res.status(200).json({ message: 'Students added successfully', data: addedStudents });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
 
 export const studentController = {
     createNew,
     getDetails,
     getAllByGradeId,
     update,
-    deleteItem
+    deleteItem,
+    addStudentsFromExcel
 }

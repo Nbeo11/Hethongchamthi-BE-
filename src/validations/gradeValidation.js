@@ -9,7 +9,9 @@ const createNew = async (req, res, next) => {
     const correctCondition = Joi.object({
         courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
         ologyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-        gradename: Joi.string().required().min(3).max(50).trim().strict()
+        gradecode: Joi.string().required().min(3).max(50).trim().strict(),
+        gradename: Joi.string().required().min(3).max(50).trim().strict(),
+        gradedescription: Joi.string().required().min(3).max(50).trim().strict(),
     })
 
     try {

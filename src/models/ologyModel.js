@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
+// Chuyên ngành học
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
@@ -11,7 +12,10 @@ import { studentModel } from './studentModel'
 const OLOGY_COLLECTION_NAME = 'ologies'
 const OLOGY_COLLECTION_SCHEMA = Joi.object({
     courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    ologycode: Joi.string().required().min(3).max(50).trim().strict(),
     ologyname: Joi.string().required().min(3).max(50).trim().strict(),
+    ologyshort: Joi.string().required().min(3).max(50).trim().strict(),
+    ologydescription: Joi.string().required().min(3).max(50).trim().strict(),
     gradeOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),

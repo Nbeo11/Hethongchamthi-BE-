@@ -11,7 +11,7 @@ Router.route('/')
 
 Router.route('/:id')
     .get(teacherController.getDetails)
-    //.put(teacherValidation.update, teacherController.update)
-    //.delete(teacherValidation.deleteItem, teacherController.deleteItem)
+    .put(teacherValidation.update, teacherController.update)
+    .delete(teacherValidation.deleteItem, teacherController.deleteItem)
 
 export const teacherRoute = Router
