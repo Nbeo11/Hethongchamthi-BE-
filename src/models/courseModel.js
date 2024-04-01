@@ -12,7 +12,7 @@ import { studentModel } from './studentModel'
 //Define Collection (Name & Schema)
 const COURSE_COLLECTION_NAME = 'courses'
 const COURSE_COLLECTION_SCHEMA = Joi.object({
-    coursename: Joi.string().required().min(3).max(50).trim().strict(),
+    coursename: Joi.string().required().min(1).max(50).trim().strict(),
     // Lưu ý các item trong mảng columnOrderIds là ObjectId nên cần thêm pattern cho chuẩn
     ologyOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)

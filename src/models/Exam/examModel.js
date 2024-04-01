@@ -8,11 +8,11 @@ import { GET_DB } from '~/config/mongodb';
 //Define Collection (Name & Schema)
 const EXAM_COLLECTION_NAME = 'exams'
 const EXAM_COLLECTION_SCHEMA = Joi.object({
-    moduleId: Joi.string().required().min(3).max(50).trim().strict(),
+    moduleId: Joi.string().required().min(1).max(50).trim().strict(),
     score: Joi.number().required().min(1),
-    chapter: Joi.string().required().min(3).max(50).trim().strict(),
+    chapter: Joi.string().required().min(1).max(50).trim().strict(),
     difficulty: Joi.string().trim().strict(),
-    questionId: Joi.string().required().min(3).max(50).trim().strict(),
+    questionId: Joi.string().required().min(1).max(50).trim().strict(),
     examstatus: Joi.number().valid(1, 2, 3).default(1),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),

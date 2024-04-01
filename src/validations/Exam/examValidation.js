@@ -7,11 +7,11 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
     const correctCondition = Joi.object({
-        moduleId: Joi.string().required().min(3).max(50).trim().strict(),
+        moduleId: Joi.string().required().min(1).max(50).trim().strict(),
         score: Joi.number().required().min(1),
-        chapter: Joi.string().required().min(3).max(50).trim().strict(),
+        chapter: Joi.string().required().min(1).max(50).trim().strict(),
         difficulty: Joi.string().trim().strict(),
-        questionId: Joi.string().required().min(3).max(50).trim().strict(),
+        questionId: Joi.string().required().min(1).max(50).trim().strict(),
         examstatus: Joi.number().valid(1, 2, 3).default(1)
     })
 
@@ -25,11 +25,11 @@ const createNew = async (req, res, next) => {
 }
 const update = async (req, res, next) => {
     const correctCondition = Joi.object({
-        moduleId: Joi.string().min(3).max(50).trim().strict(),
+        moduleId: Joi.string().min(1).max(50).trim().strict(),
         score: Joi.number().min(1),
-        chapter: Joi.string().min(3).max(50).trim().strict(),
+        chapter: Joi.string().min(1).max(50).trim().strict(),
         difficulty: Joi.string().trim().strict(),
-        questionId: Joi.string().min(3).max(50).trim().strict(),
+        questionId: Joi.string().min(1).max(50).trim().strict(),
         examstatus: Joi.number().valid(1, 2, 3).default(1)
     })
 

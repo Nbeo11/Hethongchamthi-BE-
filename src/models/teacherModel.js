@@ -14,14 +14,14 @@ const TEACHER_COLLECTION_NAME = 'teachers'
 const TEACHER_COLLECTION_SCHEMA = Joi.object({
     facultyId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     departmentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    username: Joi.string().required().min(3).max(50).trim().strict(),
+    username: Joi.string().required().min(1).max(50).trim().strict(),
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(3).max(50).trim().strict(),
+    password: Joi.string().required().min(1).max(50).trim().strict(),
     birth: Joi.date().iso(),
     gender: Joi.string().valid('male', 'female', 'other'),
     phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
     role: Joi.string().default('giangvien'), // Đặt giá trị mặc định là "giangvien"
-    note: Joi.string().min(3).max(50).trim().strict(),
+    note: Joi.string().min(1).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
@@ -59,11 +59,16 @@ const createNew = async (data) => {
             departmentId: new ObjectId(validData.departmentId),
             password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
         }
+
+        newTeacherToAdd._id = new ObjectId();
+
+
         const createdTeacher = await GET_DB().collection(TEACHER_COLLECTION_NAME).insertOne(newTeacherToAdd)
         
         await userModel.createUsersCollection({
-            _id: createdTeacher._id,
+            _id: newTeacherToAdd._id,
             email: data.email,
+            username: data.username,
             password: hashedPassword,
             role: 'giangvien' // Xác định loại người dùng là giảng viên
             // Thêm các trường khác của giảng viên nếu cần
@@ -137,10 +142,21 @@ const update = async (teacherId, updateData) => {
 
 const deleteOneById = async (teacherId) => {
     try {
+        const teacherObjectId = new ObjectId(teacherId);
+
+        const teacherToDelete = await findOneById(teacherObjectId);
+
+        // Kiểm tra xem sinh viên có tồn tại không
+        if (!teacherToDelete) {
+            throw new Error('Teacher not found');
+        }
+
         const result = await GET_DB().collection(TEACHER_COLLECTION_NAME).deleteOne({
-            _id: new ObjectId(teacherId)
+            _id: teacherObjectId
         })
         console.log('deleteOneById - teacher', result)
+
+        await userModel.deleteOneByUserId(teacherToDelete._id);
         return result
     } catch (error) { throw new Error(error) }
 }

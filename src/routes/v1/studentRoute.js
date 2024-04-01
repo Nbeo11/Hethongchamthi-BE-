@@ -10,6 +10,9 @@ const upload = multer({ dest: 'uploads/' });
 Router.route('/')
     .post(studentValidation.createNew, studentController.createNew)
 
+Router.route('/:gradeId/students')
+    .get(studentController.getAllByGradeId);
+
 Router.route('/:id')
     .get(studentController.getDetails)
     .put(studentValidation.update, studentController.update)

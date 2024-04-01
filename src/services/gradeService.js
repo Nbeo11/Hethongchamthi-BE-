@@ -4,7 +4,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { gradeModel } from '~/models/gradeModel'
 import { ologyModel } from '~/models/ologyModel'
-import { studentModel } from '~/models/studentModel'
 import ApiError from '~/utils/ApiError'
 
 const createNew = async (reqBody) => {
@@ -25,13 +24,22 @@ const createNew = async (reqBody) => {
     }
 }
 
-const getAllGrades = async () => {
+const getAllByOlogyId = async (ologyId) => {
     try {
         // Gọi phương thức từ Model để lấy tất cả các khóa học
-        const allGrades = await gradeModel.getAllGrades()
+        const allGrades = await gradeModel.getAllByOlogyId(ologyId)
         return allGrades
     } catch (error) { throw error }
 }
+
+const getAllGrade = async () => {
+    try {
+        // Gọi phương thức từ Model để lấy tất cả các khóa học
+        const allGrades = await gradeModel.getAllGrade()
+        return allGrades
+    } catch (error) { throw error }
+}
+
 
 const getDetails = async (gradeId) => {
     try {
@@ -69,8 +77,6 @@ const deleteItem = async (gradeId) => {
         await gradeModel.deleteOneById(gradeId)
         // Xóa toàn bộ student thuộc grade
 
-        await studentModel.deleteManyByGradeId(gradeId)
-
         // Xóa gradeId trong mảng gradeOrderIds trong Course chứa nó
 
         await ologyModel.pullGradeOrderIds(targetGrade)
@@ -84,7 +90,8 @@ const deleteItem = async (gradeId) => {
 export const gradeService = {
     createNew,
     getDetails,
-    getAllGrades,
+    getAllByOlogyId,
     update,
-    deleteItem
+    deleteItem,
+    getAllGrade
 }

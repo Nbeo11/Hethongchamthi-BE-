@@ -14,8 +14,9 @@ const createNew = async (req, res, next) => {
 
 const getAllByGradeId = async (req, res, next) => {
     try {
-        const allOlogies = await studentService.getAllByGradeId();
-        res.status(StatusCodes.OK).json(allOlogies);
+        const gradeId = req.params.gradeId
+        const allStudents = await studentService.getAllByGradeId(gradeId);
+        res.status(StatusCodes.OK).json(allStudents);
     } catch (error) {
         next(error);
     }

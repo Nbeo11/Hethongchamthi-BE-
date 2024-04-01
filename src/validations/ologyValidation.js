@@ -8,10 +8,10 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const createNew = async (req, res, next) => {
     const correctCondition = Joi.object({
         courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-        ologycode: Joi.string().required().min(3).max(50).trim().strict(),
-        ologyname: Joi.string().required().min(3).max(50).trim().strict(),
-        ologyshort: Joi.string().required().min(3).max(50).trim().strict(),
-        ologydescription: Joi.string().required().min(3).max(50).trim().strict(),
+        ologycode: Joi.string().required().min(1).max(50).trim().strict(),
+        ologyname: Joi.string().required().min(1).max(50).trim().strict(),
+        ologyshort: Joi.string().required().min(1).max(50).trim().strict(),
+        ologydescription: Joi.string().required().min(1).max(50).trim().strict(),
     })
 
     try {
@@ -25,10 +25,10 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     const correctCondition = Joi.object({
-        ologycode: Joi.string().required().min(3).max(50).trim().strict(),
-        ologyname: Joi.string().required().min(3).max(50).trim().strict(),
-        ologyshort: Joi.string().required().min(3).max(50).trim().strict(),
-        ologydescription: Joi.string().required().min(3).max(50).trim().strict(),
+        ologycode: Joi.string().min(1).max(50).trim().strict(),
+        ologyname: Joi.string().min(1).max(50).trim().strict(),
+        ologyshort: Joi.string().min(1).max(50).trim().strict(),
+        ologydescription: Joi.string().min(1).max(50).trim().strict(),
     })
 
     try {

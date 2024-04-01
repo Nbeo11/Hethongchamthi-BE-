@@ -8,11 +8,11 @@ import { GET_DB } from '~/config/mongodb';
 //Define Collection (Name & Schema)
 const QUESTION_BANK_COLLECTION_NAME = 'question_banks'
 const QUESTION_BANK_COLLECTION_SCHEMA = Joi.object({
-    moduleId: Joi.string().required().min(3).max(50).trim().strict(),
-    chapter: Joi.string().required().min(3).max(50).trim().strict(),
+    moduleId: Joi.string().required().min(1).max(50).trim().strict(),
+    chapter: Joi.string().required().min(1).max(50).trim().strict(),
     question_format: Joi.string().valid('Trắc nghiệm', 'Thực hành', 'Lý thuyết').required(),
     difficulty: Joi.string().trim().strict(),
-    question_detail: Joi.string().required().min(3).trim().strict(),
+    question_detail: Joi.string().required().min(1).trim().strict(),
     keys: Joi.array().items(
         Joi.string().required().min(1).max(50).trim().strict()
     ),

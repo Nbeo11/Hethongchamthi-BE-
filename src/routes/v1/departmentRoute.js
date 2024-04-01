@@ -6,8 +6,10 @@ import { departmentValidation } from '~/validations/departmentValidation'
 const Router = express.Router()
 
 Router.route('/')
-    .get(departmentController.getAllByFacultyId)
     .post(departmentValidation.createNew, departmentController.createNew)
+
+Router.route('/:facultyId/ologies') // Thêm '/:courseId/ologies' để truyền courseId vào đây
+    .get(departmentController.getAllByFacultyId)
 
 Router.route('/:id')
     .get(departmentController.getDetails)

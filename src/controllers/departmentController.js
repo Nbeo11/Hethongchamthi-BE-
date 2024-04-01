@@ -12,7 +12,8 @@ const createNew = async (req, res, next) => {
 
 const getAllByFacultyId = async (req, res, next) => {
     try {
-        const allDepartments = await departmentService.getAllByFacultyId();
+        const facultyId = req.params.facultyId;
+        const allDepartments = await departmentService.getAllByFacultyId(facultyId);
         res.status(StatusCodes.OK).json(allDepartments);
     } catch (error) {
         next(error);

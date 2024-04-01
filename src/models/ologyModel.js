@@ -12,10 +12,10 @@ import { studentModel } from './studentModel'
 const OLOGY_COLLECTION_NAME = 'ologies'
 const OLOGY_COLLECTION_SCHEMA = Joi.object({
     courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    ologycode: Joi.string().required().min(3).max(50).trim().strict(),
-    ologyname: Joi.string().required().min(3).max(50).trim().strict(),
-    ologyshort: Joi.string().required().min(3).max(50).trim().strict(),
-    ologydescription: Joi.string().required().min(3).max(50).trim().strict(),
+    ologycode: Joi.string().required().min(1).max(50).trim().strict(),
+    ologyname: Joi.string().required().min(1).max(50).trim().strict(),
+    ologyshort: Joi.string().required().min(1).max(50).trim().strict(),
+    ologydescription: Joi.string().required().min(1).max(50).trim().strict(),
     gradeOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
@@ -145,6 +145,17 @@ const deleteManyByOlogyId = async (courseId) => {
     } catch (error) { throw new Error(error) }
 }
 
+const pullGradeOrderIds = async (grade) => {
+    try {
+        const result = await GET_DB().collection(OLOGY_COLLECTION_NAME).findOneAndUpdate(
+            { _id: new ObjectId(grade.ologyId) },
+            { $pull: { gradeOrderIds: new ObjectId(grade._id) } },
+            { returnDocument: 'after' }
+        )
+
+        return result
+    } catch (error) { throw new Error(error) }
+}
 
 export const ologyModel = {
     OLOGY_COLLECTION_NAME,
@@ -156,5 +167,6 @@ export const ologyModel = {
     pushGradeOrderIds,
     update,
     deleteOneById,
-    deleteManyByOlogyId
+    deleteManyByOlogyId,
+    pullGradeOrderIds
 }

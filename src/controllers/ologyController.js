@@ -12,12 +12,14 @@ const createNew = async (req, res, next) => {
 
 const getAllByCourseId = async (req, res, next) => {
     try {
-        const allOlogies = await ologyService.getAllByCourseId();
+        const courseId = req.params.courseId; // Lấy courseId từ request params
+        const allOlogies = await ologyService.getAllByCourseId(courseId); // Truyền courseId vào hàm
         res.status(StatusCodes.OK).json(allOlogies);
     } catch (error) {
         next(error);
     }
 }
+
 
 const getDetails = async (req, res, next) => {
     try {

@@ -14,14 +14,14 @@ const DEPARTMENT_LEADER_COLLECTION_NAME = 'department_leaders'
 const DEPARTMENT_LEADER_COLLECTION_SCHEMA = Joi.object({
     facultyId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     departmentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    username: Joi.string().required().min(3).max(50).trim().strict(),
+    username: Joi.string().required().min(1).max(50).trim().strict(),
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(3).max(50).trim().strict(),
+    password: Joi.string().required().min(1).max(50).trim().strict(),
     birth: Joi.date().iso(),
     gender: Joi.string().valid('male', 'female', 'other'),
     phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
     role: Joi.string().default('bomon'), // Đặt giá trị mặc định là "bomon"
-    note: Joi.string().min(3).max(50).trim().strict(),
+    note: Joi.string().min(1).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
@@ -59,11 +59,15 @@ const createNew = async (data) => {
             departmentId: new ObjectId(validData.departmentId),
             password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
         }
+
+        newDepartment_leaderToAdd._id = new ObjectId();
+
         const createdDepartment_leader = await GET_DB().collection(DEPARTMENT_LEADER_COLLECTION_NAME).insertOne(newDepartment_leaderToAdd)
         
         await userModel.createUsersCollection({
-            _id: createdDepartment_leader._id,
+            _id: newDepartment_leaderToAdd._id,
             email: data.email,
+            username: data.username,
             password: hashedPassword,
             role: 'bomon' // Xác định loại người dùng là giảng viên
             // Thêm các trường khác của giảng viên nếu cần

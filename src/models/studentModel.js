@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable no-useless-catch */
 /* eslint-disable indent */
 // Sinh viên (user)
@@ -14,14 +15,14 @@ const STUDENT_COLLECTION_SCHEMA = Joi.object({
     courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     ologyId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     gradeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    username: Joi.string().required().min(3).max(50).trim().strict(),
+    username: Joi.string().required().min(1).max(50).trim().strict(),
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(3).max(50).trim().strict(),
+    password: Joi.string().required().min(1).max(50).trim().strict(),
     birth: Joi.date().iso(),
     gender: Joi.string().valid('male', 'female', 'other'),
     phoneNumber: Joi.string().pattern(/^[0-9]{10,11}$/),
     role: Joi.string().default('sinhvien'), // Đặt giá trị mặc định là "sinhvien"
-    note: Joi.string().min(3).max(50).trim().strict(),
+    note: Joi.string().min(1).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
@@ -58,11 +59,14 @@ const createNew = async (data) => {
             password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
         }
 
+        newStudentToAdd._id = new ObjectId();
+        
         const createdStudent = await GET_DB().collection(STUDENT_COLLECTION_NAME).insertOne(newStudentToAdd);
 
         await userModel.createUsersCollection({
-            _id: createdStudent._id,
+            _id: newStudentToAdd._id,
             email: data.email,
+            username: data.username,
             password: hashedPassword, // Thay đổi mật khẩu thành mật khẩu đã băm
             role: 'sinhvien' // Xác định loại người dùng là sinh viên
             // Thêm các trường khác của sinh viên nếu cần
@@ -80,6 +84,19 @@ const findOneById = async (studentId) => {
         })
         return result
     } catch (error) { throw new Error(error) }
+}
+
+const getAllByGradeId = async (gradeId) => {
+    try {
+        // Lấy tất cả các student thuộc grade
+        const result = await GET_DB().collection(STUDENT_COLLECTION_NAME).find({
+            gradeId: new ObjectId(gradeId)
+        }).toArray();
+        return result;
+    } catch (error) {
+        // Xử lý lỗi nếu có
+        throw error;
+    }
 }
 
 const getAllStudents = async () => {
@@ -135,13 +152,26 @@ const update = async (studentId, updateData) => {
 
 const deleteOneById = async (studentId) => {
     try {
+        // Chuyển đổi studentId thành ObjectId
+        const studentObjectId = new ObjectId(studentId);
+
+        const studentToDelete = await findOneById(studentObjectId);
+
+        // Kiểm tra xem sinh viên có tồn tại không
+        if (!studentToDelete) {
+            throw new Error('Student not found');
+        }
+
         const result = await GET_DB().collection(STUDENT_COLLECTION_NAME).deleteOne({
-            _id: new ObjectId(studentId)
+            _id: studentObjectId
         })
         console.log('deleteOneById - student', result)
+
+        await userModel.deleteOneByUserId(studentToDelete._id);
         return result
     } catch (error) { throw new Error(error) }
 }
+
 
 
 export const studentModel = {
@@ -153,5 +183,6 @@ export const studentModel = {
     getAllStudents,
     deleteManyByStudentId,
     update,
-    deleteOneById
+    deleteOneById,
+    getAllByGradeId
 }

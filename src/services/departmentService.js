@@ -30,10 +30,10 @@ const createNew = async (reqBody) => {
     }
 }
 
-const getAllByFacultyId = async () => {
+const getAllByFacultyId = async (facultyId) => {
     try {
         // Gọi phương thức từ Model để lấy tất cả các ngành học
-        const allDepartments = await departmentModel.getAllByFacultyId()
+        const allDepartments = await departmentModel.getAllByFacultyId(facultyId)
         return allDepartments
     } catch (error) { throw error }
 }

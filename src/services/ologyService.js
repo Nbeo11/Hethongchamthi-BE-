@@ -30,33 +30,40 @@ const createNew = async (reqBody) => {
     }
 }
 
-const getAllByCourseId = async () => {
+const getAllByCourseId = async (courseId) => {
     try {
-        // Gọi phương thức từ Model để lấy tất cả các ngành học
-        const allOlogies = await ologyModel.getAllByCourseId()
+        // Gọi phương thức từ Model để lấy tất cả các ngành học của khóa học có _id là courseId
+        const allOlogies = await ologyModel.getAllByCourseId(courseId)
         return allOlogies
-    } catch (error) { throw error }
+    } catch (error) {
+        throw error
+    }
 }
+
 
 const getDetails = async (ologyId) => {
     try {
         const ology = await ologyModel.getDetails(ologyId);
         if (!ology) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Ology not found!')
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Ology not found!');
         }
-        const resOlogy = cloneDeep(ology)
-        resOlogy.grades.forEach(grade => {
-            grade.students = resOlogy.students.filter(student => student.gradeId.equals(grade._id))
-        })
 
-        delete resOlogy.students
+        const resOlogy = cloneDeep(ology);
 
+        // Check if resOlogy.grades is defined before iterating over it
+        if (resOlogy.grades) {
+            resOlogy.grades.forEach(grade => {
+                grade.students = resOlogy.students.filter(student => student.gradeId.equals(grade._id));
+            });
+        }
 
-        return resOlogy
+        delete resOlogy.students;
+
+        return resOlogy;
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 
 const update = async (id, reqBody) => {
     try {

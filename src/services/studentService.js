@@ -19,12 +19,10 @@ const createNew = async (reqBody) => {
 
         //Lấy bản ghi student sau khi gọi (tùy mục đích dự án mà có cần bước này hay k)
         const getNewStudent = await studentModel.findOneById(createdStudent.insertedId)
-        // console.log(getNewStudent)
 
-        //Làm thêm các xử lý logic khác với các Collection khác tùy đặc thù dự án
-        //Bắn email, notification về cho admon khi có 1 student mới đc tạo
-
-        //Trả kết quả về, trong Service luôn phải có return
+        if (getNewStudent) {
+            await gradeModel.pushStudentOrderIds(getNewStudent)
+        }
         return getNewStudent
     } catch (error) {
         throw error
@@ -48,6 +46,14 @@ const getAllStudents = async () => {
     try {
         // Gọi phương thức từ Model để lấy tất cả các khóa học
         const allStudents = await studentModel.getAllStudents()
+        return allStudents
+    } catch (error) { throw error }
+}
+
+const getAllByGradeId = async (gradeId) => {
+    try {
+        // Gọi phương thức từ Model để lấy tất cả các khóa học
+        const allStudents = await studentModel.getAllByGradeId(gradeId)
         return allStudents
     } catch (error) { throw error }
 }
@@ -89,5 +95,6 @@ export const studentService = {
     getDetails,
     update,
     deleteItem,
-    getAllStudents
+    getAllStudents,
+    getAllByGradeId
 }

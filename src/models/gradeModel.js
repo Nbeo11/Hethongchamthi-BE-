@@ -15,13 +15,15 @@ const GRADE_COLLECTION_SCHEMA = Joi.object({
     studentOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
-    gradecode: Joi.string().required().min(3).max(50).trim().strict(),
-    gradename: Joi.string().required().min(3).max(50).trim().strict(),
-    gradedescription: Joi.string().required().min(3).max(50).trim().strict(),
+    gradecode: Joi.string().required().min(1).max(50).trim().strict(),
+    gradename: Joi.string().required().min(1).max(50).trim().strict(),
+    gradedescription: Joi.string().required().min(1).max(50).trim().strict(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
 })
+
+const INVALID_UPDATE_FIELDS = ['_id', 'courseId', 'ologyId', 'createdAt']
 
 const validateBeforeCreate = async (data) => {
     return await GRADE_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -50,12 +52,25 @@ const findOneById = async (gradeId) => {
     } catch (error) { throw new Error(error) }
 }
 
-const getAllGrades = async () => {
+const getAllByOlogyId = async (ologyId) => {
     try {
-        // Gọi phương thức từ MongoDB để lấy tất cả các khóa học
-        const allGrades = await GET_DB().collection(GRADE_COLLECTION_NAME).find().toArray();
+        // Lấy tất cả các grade thuộc ology
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).find({
+            ologyId: new ObjectId(ologyId)
+        }).toArray();
+        return result;
+    } catch (error) {
+        // Xử lý lỗi nếu có
+        throw error;
+    }
+}
+
+const getAllGrade = async () => {
+    try {
+        // Lấy tất cả các grade thuộc ology
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).find().toArray();
         // Trả về kết quả
-        return allGrades;
+        return result;
     } catch (error) {
         // Xử lý lỗi nếu có
         throw error;
@@ -84,6 +99,59 @@ const getDetails = async (id) => {
     } catch (error) { throw new Error(error) }
 }
 
+const pushStudentOrderIds = async (student) => {
+    try {
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).findOneAndUpdate(
+        { _id: new ObjectId(student.gradeId) },
+        { $push: { studentOrderIds: new ObjectId(student._id) } },
+        { returnDocument: 'after' }
+        )
+
+        return result
+    } catch (error) { throw new Error(error) }
+}
+
+const pullStudentOrderIds = async (student) => {
+    try {
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).findOneAndUpdate(
+            { _id: new ObjectId(student.courseId) },
+            { $pull: { studentOrderIds: new ObjectId(student._id) } },
+            { returnDocument: 'after' }
+        )
+
+        return result
+    } catch (error) { throw new Error(error) }
+}
+
+const update = async (gradeId, updateData) => {
+    try {
+        Object.keys(updateData).forEach(fileName => {
+            if (INVALID_UPDATE_FIELDS.includes(fileName)) {
+                delete updateData[fileName]
+            }
+        })
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).findOneAndUpdate(
+            { _id: new ObjectId(gradeId) },
+            { $set: updateData},
+            { returnDocument: 'after' }
+        );
+
+        return result
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const deleteOneById = async (gradeId) => {
+    try {
+        const result = await GET_DB().collection(GRADE_COLLECTION_NAME).deleteOne({
+            _id: new ObjectId(gradeId)
+        })
+        console.log('deleteOneById - grade', result)
+        return result
+    } catch (error) { throw new Error(error) }
+}
+
 const deleteManyByGradeId = async (ologyId) => {
     try {
         const result = await GET_DB().collection(GRADE_COLLECTION_NAME).deleteMany({
@@ -101,6 +169,11 @@ export const gradeModel = {
     createNew,
     findOneById,
     getDetails,
-    getAllGrades,
-    deleteManyByGradeId
+    getAllByOlogyId,
+    deleteManyByGradeId,
+    getAllGrade,
+    pushStudentOrderIds,
+    update,
+    deleteOneById,
+    pullStudentOrderIds
 }

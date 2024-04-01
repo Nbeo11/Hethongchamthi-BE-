@@ -7,11 +7,11 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
     const correctCondition = Joi.object({
-        moduleId: Joi.string().required().min(3).max(50).trim().strict(),
-        chapter: Joi.string().required().min(3).max(50).trim().strict(),
+        moduleId: Joi.string().required().min(1).max(50).trim().strict(),
+        chapter: Joi.string().required().min(1).max(50).trim().strict(),
         question_format: Joi.string().valid('Trắc nghiệm', 'Thực hành', 'Lý thuyết').required(),
         difficulty: Joi.string().trim().strict(),
-        question_detail: Joi.string().required().min(3).trim().strict(),
+        question_detail: Joi.string().required().min(1).trim().strict(),
         keys: Joi.array().items(
             Joi.string().required().min(1).max(50).trim().strict()
         ),
@@ -28,11 +28,11 @@ const createNew = async (req, res, next) => {
 }
 const update = async (req, res, next) => {
     const correctCondition = Joi.object({
-        moduleId: Joi.string().required().min(3).max(50).trim().strict(),
-        chapter: Joi.string().required().min(3).max(50).trim().strict(),
+        moduleId: Joi.string().required().min(1).max(50).trim().strict(),
+        chapter: Joi.string().required().min(1).max(50).trim().strict(),
         question_format: Joi.string().valid('Trắc nghiệm', 'Thực hành', 'Lý thuyết').required(),
         difficulty: Joi.string().trim().strict(),
-        question_detail: Joi.string().required().min(3).trim().strict(),
+        question_detail: Joi.string().required().min(1).trim().strict(),
         keys: Joi.array().items(
             Joi.string().required().min(1).max(50).trim().strict()
         ),
